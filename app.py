@@ -22,7 +22,7 @@ COLORS = {
 }
 
 def preprocess(img):
-    img = img.resize((640, 640))
+    img = img.resize((320, 320))
     img = np.array(img).astype(np.float32) / 255.0
     img = img.transpose(2, 0, 1)
     img = np.expand_dims(img, axis=0)
@@ -62,7 +62,7 @@ def predict():
     img = Image.open(file).convert("RGB")
     inp = preprocess(img)
     outputs = session.run(None, {input_name: inp})
-    result = draw_boxes(img.resize((640, 640)), outputs)
+    result = draw_boxes(img.resize((320, 320)), outputs)
     filepath = "static/uploads/detected.jpg"
     result.save(filepath)
     return render_template("index.html", image=filepath)
