@@ -11,7 +11,15 @@ os.makedirs("static/uploads", exist_ok=True)
 session = rt.InferenceSession("helmet_best.onnx")
 input_name = session.get_inputs()[0].name
 
-CLASSES = ["helmet", "no helmet"]
+CLASSES = ["head", "helmet", "hi-viz helmet", "hi-viz vest", "person", "random"]
+COLORS = {
+    "helmet": (0, 255, 0),
+    "hi-viz helmet": (0, 200, 0),
+    "head": (0, 0, 255),
+    "person": (255, 165, 0),
+    "hi-viz vest": (255, 255, 0),
+    "random": (128, 128, 128)
+}
 
 def preprocess(img):
     img = img.resize((320, 320))
@@ -20,7 +28,7 @@ def preprocess(img):
     img = np.expand_dims(img, axis=0)
     return img
 
-def draw_boxes(image, outputs, threshold=0.6):
+def draw_boxes(image, outputs, threshold=0.5):
     img = np.array(image)
     predictions = outputs[0][0]
     for pred in predictions.T:
@@ -34,8 +42,9 @@ def draw_boxes(image, outputs, threshold=0.6):
         y1 = int((y - h/2))
         x2 = int((x + w/2))
         y2 = int((y + h/2))
-        color = (0, 255, 0) if class_id == 0 else (0, 0, 255)
-        label = f"{CLASSES[class_id] if class_id < len(CLASSES) else 'object'}: {score:.2f}"
+        label_name = CLASSES[class_id] if class_id < len(CLASSES) else "object"
+        color = COLORS.get(label_name, (0, 255, 0))
+        label = f"{label_name}: {score:.2f}"
         cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
         cv2.rectangle(img, (x1, y1-25), (x2, y1), color, -1)
         cv2.putText(img, label, (x1+3, y1-7),
