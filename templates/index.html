@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helmet Detection</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #0a0a0a;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: #111;
+            border: 1px solid #00ff41;
+            border-radius: 12px;
+            padding: 40px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 0 30px #00ff4150;
+        }
+        h1 { font-size: 2rem; text-align: center; margin-bottom: 8px; }
+        .upload-area {
+            border: 2px dashed #00ff41;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .result { margin-top: 30px; text-align: center; }
+        .result img { width: 100%; border-radius: 8px; border: 1px solid #00ff41; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🪖 HELMET DETECTOR</h1>
+        <form action="/predict" method="post" enctype="multipart/form-data">
+            <div class="upload-area">
+                <input type="file" name="image" accept="image/*" required>
+            </div>
+            <button type="submit" class="btn">▶ RUN DETECTION</button>
+        </form>
+        {% if image %}
+        <div class="result">
+            <h2>// DETECTION RESULT //</h2>
+            <img src="{{ image }}" alt="Detection Result">
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
