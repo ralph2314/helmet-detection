@@ -32,6 +32,7 @@ def draw_boxes(image, outputs, threshold=0.5):
     img = np.array(image)
     h, w = img.shape[:2]
     predictions = outputs[0][0]
+    summary = {}
     for pred in predictions.T:
         x, y, bw, bh = pred[:4]
         scores = pred[4:]
@@ -45,12 +46,16 @@ def draw_boxes(image, outputs, threshold=0.5):
         y2 = min(h, int((y + bh/2)))
         label_name = CLASSES[class_id] if class_id < len(CLASSES) else "object"
         color = COLORS.get(label_name, (0, 255, 0))
-        label = f"{label_name} {score:.2f}"
+        label = f"{label_name} {score*100:.0f}%"
         cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
-        label_y = y2 + 20 if y1 < 20 else y1 - 8
-        cv2.putText(img, label, (x1, label_y),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, color, 2)
-    return Image.fromarray(img)
+        cv2.putText(img, label, (x1, max(y1-5, 15)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255,255,255), 2)
+        cv2.putText(img, label, (x1, max(y1-5, 15)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 1)
+        if label_name not in summary:
+            summary[label_name] = []
+        summary[label_name].append(round(score*100, 1))
+    return Image.fromarray(img), summary
 
 @app.route("/")
 def home():
@@ -62,10 +67,10 @@ def predict():
     img = Image.open(file).convert("RGB")
     inp = preprocess(img)
     outputs = session.run(None, {input_name: inp})
-    result = draw_boxes(img.resize((320, 320)), outputs)
+    result, summary = draw_boxes(img.resize((320, 320)), outputs)
     filepath = "static/uploads/detected.jpg"
     result.save(filepath)
-    return render_template("index.html", image=filepath)
+    return render_template("index.html", image=filepath, summary=summary)
 
 if __name__ == "__main__":
     app.run()
